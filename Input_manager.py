@@ -50,8 +50,8 @@ def main():
 
         
         # Variables
-        k = 20      # number of vehicles
-        Q = 2000     # capacity of vehicles
+        max_vehicles = 25     # number of vehicles
+        Q = 200     # capacity of vehicles
         num_data_points = 100  # number of demand points
         depot = 0  
         dem_points = list(range(1, num_data_points+1))  # nodes 1, 2, ..., 20
@@ -90,7 +90,7 @@ def main():
         
         print(q)
         
-        model = solve_VRP_TW_problem(G, depot,k,q,num_data_points,Q,time_windows,service_times,dem_points)
+        model = solve_VRP_TW_problem(G, depot,max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points)
         
         
         # Assuming model is the returned Gurobi model from solve_TSP_MTZ_problem
