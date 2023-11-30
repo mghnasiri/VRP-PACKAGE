@@ -61,7 +61,7 @@ def visualize_graph(G, depot, nx, x, my_pos, results, dataset_name_with_extensio
     # Now the first subplot (ax1) is used for graph visualization
     # The second subplot (ax2) is used for the table
     # The third subplot (ax3) is used for displaying the optimal tour
-    if results['Optimal Value'] != float('inf'):
+    if results['Optimal Value'] != None:
         tour_edges = [e for e in G.edges if x[e].x > 0.9]
         node_colors = ["red" if node == depot else "yellow" for node in G.nodes()]
         node_sizes = [100 if node == depot else 50 for node in G.nodes()]
