@@ -1,7 +1,7 @@
 import networkx as nx
 import os
 import pandas as pd
-from model import  eucl_dist,solve_VRP_MTZ_problem,get_optimization_results
+from model import  eucl_dist,solve_VRP_TW_problem,get_optimization_results
 from output_manager import visualize_graph
 
 
@@ -50,7 +50,7 @@ def main():
 
         
         # Variables
-        k = 8      # number of vehicles
+        k = 1      # number of vehicles
         Q = 200     # capacity of vehicles
         num_data_points = 24  # number of demand points
         depot = 0
@@ -77,7 +77,7 @@ def main():
         
         print(q)
         
-        model = solve_VRP_MTZ_problem(G, k,q,num_data_points,Q)
+        model = solve_VRP_TW_problem(G, k,q,num_data_points,Q,time_windows,travel_times,service_times)
         
         
         # Assuming model is the returned Gurobi model from solve_TSP_MTZ_problem
