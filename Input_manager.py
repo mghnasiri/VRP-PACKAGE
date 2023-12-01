@@ -12,18 +12,18 @@ def main():
     # Load the list of dataset
     dataset_paths = [                     
                      #Solomon DataSet
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R101.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R102.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R103.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R104.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R105.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R106.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R107.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R108.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R109.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R110.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R111.csv',
-                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R112.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R101.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R102.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R103.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R104.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R105.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R106.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R107.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R108.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R109.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R110.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R111.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R112.csv',
                 # 
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C101.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C102.csv',
@@ -37,12 +37,12 @@ def main():
                      
                      '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC101.csv',
                      '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC102.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC103.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC104.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC105.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC106.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC107.csv',
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC108.csv'
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC103.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC104.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC105.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC106.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC107.csv',
+                    # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC108.csv'
                      ]
     
     for data_path in dataset_paths:

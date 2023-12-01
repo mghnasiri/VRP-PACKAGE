@@ -86,7 +86,7 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
     )
     
     
-    y=m.addVars(connections, lb=0, name="y")
+    """ y=m.addVars(connections, lb=0, name="y")
     
     for (i, j) in connections:
         y[i, j].UB = time_windows[i][1]
@@ -120,7 +120,7 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
             if i != j
         ),
         name="timeWindowEnd",
-    )
+    ) """
 
     
     
