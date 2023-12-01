@@ -133,7 +133,7 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
     # Search for more than one optimal solution
     #m.setParam(GRB.Param.PoolSearchMode, 2)
     # Set the time limit (in seconds)
-    time_limit = 600  # for example, 60 seconds
+    time_limit = 6000  # for example, 60 seconds
     m.setParam(GRB.Param.TimeLimit, time_limit)
     m.setParam('LogFile', 'gurobi.log')
 
