@@ -85,6 +85,47 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
         name="loadUpperBound",
     )
     
+    
+    y=m.addVars(connections, lb=0, name="y")
+    
+    for (i, j) in connections:
+        y[i, j].UB = time_windows[i][1]
+
+    m.addConstrs(
+        (
+            gp.quicksum(
+                y[i, j] + (service_times[i] + G.edges[i, j]['length']) * x[i, j]
+                for i in locations
+                if (i, j) in connections
+            )
+            <= y.sum(j, "*")
+            for j in customers
+        ),
+        name="flowConservation",
+    )
+    m.addConstrs(
+        (
+            y[i, j] >= time_windows[i][0] * x[i, j]
+            for i in customers
+            for j in locations
+            if i != j
+        ),
+        name="timeWindowStart",
+    )
+    m.addConstrs(
+        (
+            y[i, j] <= time_windows[i][1] * x[i, j]
+            for i in customers
+            for j in locations
+            if i != j
+        ),
+        name="timeWindowEnd",
+    )
+
+    
+    
+    
+    
     # Subtour Elimination Constraints
     #m.addConstrs(u[i] - u[j] + len(G.nodes) * x[i, j] <=len(G.nodes) - 1 for i, j in G.edges if j != depot)
     # Configure the model to find multiple solutions
@@ -92,7 +133,7 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
     # Search for more than one optimal solution
     #m.setParam(GRB.Param.PoolSearchMode, 2)
     # Set the time limit (in seconds)
-    time_limit = 60  # for example, 60 seconds
+    time_limit = 600  # for example, 60 seconds
     m.setParam(GRB.Param.TimeLimit, time_limit)
     
     m.optimize()
