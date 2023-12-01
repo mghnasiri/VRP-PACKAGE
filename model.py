@@ -29,7 +29,7 @@ def numVehiclesNeededForCustomers(G,Q,q):
 
 
 
-def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points):
+def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
     
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
@@ -135,11 +135,26 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
     # Set the time limit (in seconds)
     time_limit = 600  # for example, 60 seconds
     m.setParam(GRB.Param.TimeLimit, time_limit)
+    m.setParam('LogFile', 'gurobi.log')
+
     
     m.optimize()
+    
+    output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/{dataset_name_with_extension}.sol"
+
+    m.write(output_file_path)
+
+
+    display_optimal_solution(x)
+
     return m
 
-
+def display_optimal_solution(x):
+    print("Optimal Routes:")
+    for (i, j), var in x.items():
+        if var.X > 0.9:  # Threshold to determine if the route is used
+            print(f"Route from {i} to {j} is part of the solution.")
+ # Assuming the model has been solved and x contains the solution
 def get_optimization_results(model):
     """
     Extracts key information from a Gurobi optimization model.
