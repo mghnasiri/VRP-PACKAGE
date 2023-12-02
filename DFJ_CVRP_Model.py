@@ -30,7 +30,7 @@ def numVehiclesNeededForCustomers(G,Q,q):
 
 
 
-def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
+def solve_MTZ_VRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
     
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
@@ -38,15 +38,13 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
 
     
     # Model
-    m = gp.Model("MCF1d")
+    m = gp.Model("DFJ_CVRP")
     
     # Decision variables
-    x = m.addVars(connections, vtype=GRB.BINARY)                                # x_ij: 1 if route from i to j is used, 0 otherwise
+    x = m.addVars(G.edges, vtype=GRB.BINARY)                                # x_ij: 1 if route from i to j is used, 0 otherwise
     u = m.addVars(G.nodes, vtype=GRB.CONTINUOUS)
     T = m.addVars(G.nodes, vtype=GRB.CONTINUOUS, lb=0, name="T")
-    f = m.addVars(connections,  G.nodes, vtype=GRB.CONTINUOUS, lb=0, name="f")      # f_ijk: flow of commodity k on route from i to j
-
-
+    
     
     # Objective: Minimize the total travel cost
     m.setObjective(gp.quicksum(G.edges[i, j]['length'] * x[i, j] for i, j in G.edges), GRB.MINIMIZE)
@@ -54,140 +52,17 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
     # all customers have exactly one incoming and one outgoing connection
     m.addConstrs((x.sum("*", j) == 1 for j in customers ), name="incoming")
     m.addConstrs((x.sum(i, "*") == 1 for i in customers ), name="outgoing")
+    
     # vehicle limits
     m.addConstr(x.sum(0, "*") <= max_vehicles, name="maxNumVehicles")
     m.addConstr(x.sum(0, "*") >= numVehiclesNeededForCustomers(G,Q,q),name="minNumVehicles",)
-
-    z = m.addVars(connections, lb=0, ub=Q, name="z")
-
-    for i in customers :
-        z[0, i].UB = 0
-
-    m.addConstrs(
-        (z.sum("*", j) + q[j] == z.sum(j, "*") for j in customers ),
-        name="flowConservation",
-    )
-    m.addConstrs(
-        (
-            z[i, j] >= q[i] * x[i, j]
-            for i in customers
-            for j in locations
-            if i != j
-        ),
-        name="loadLowerBound",
-    )
-    m.addConstrs(
-        (
-            z[i, j] <= (Q - q[j]) * x[i, j]
-            for i in customers
-            for j in locations
-            if i != j
-        ),
-        name="loadUpperBound",
-    )
     
-    
-    """ y=m.addVars(connections, lb=0, name="y")
-    
-    for (i, j) in connections:
-        y[i, j].UB = time_windows[i][1]
-
-    m.addConstrs(
-        (
-            gp.quicksum(
-                y[i, j] + (service_times[i] + G.edges[i, j]['length']) * x[i, j]
-                for i in locations
-                if (i, j) in connections
-            )
-            <= y.sum(j, "*")
-            for j in customers
-        ),
-        name="flowConservation",
-    )
-    m.addConstrs(
-        (
-            y[i, j] >= time_windows[i][0] * x[i, j]
-            for i in customers
-            for j in locations
-            if i != j
-        ),
-        name="timeWindowStart",
-    )
-    m.addConstrs(
-        (
-            y[i, j] <= time_windows[i][1] * x[i, j]
-            for i in customers
-            for j in locations
-            if i != j
-        ),
-        name="timeWindowEnd",
-    ) """
-
-    
-    
-    
-    
-    # Subtour Elimination Constraints
-    #m.addConstrs(u[i] - u[j] + len(G.nodes) * x[i, j] <=len(G.nodes) - 1 for i, j in G.edges if j != depot)
-    # Configure the model to find multiple solutions
-    #m.setParam(GRB.Param.PoolSolutions, 10)  # Store the 10 best solutions
-    # Search for more than one optimal solution
-    #m.setParam(GRB.Param.PoolSearchMode, 2)
-    # Set the time limit (in seconds)
-    time_limit = 300  # for example, 60 seconds
-    m.setParam(GRB.Param.TimeLimit, time_limit)
-    m.setParam('LogFile', 'gurobi.log')
-
-    
-    m.optimize()
-    
-    output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/{dataset_name_with_extension}.sol"
-
-    m.write(output_file_path)
-
-
-    display_optimal_solution(x)
-
-    return m
-
-
-#MTZ FOR CVRP
-def solve_MTZ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
-    
-    customers = [*range(1, num_data_points + 1)]  
-    locations = [depot] + customers   
-    connections = [(i, j) for i in locations for j in locations if i != j]
-    
-    # Model
-    m = gp.Model("MTZ_CVRP")
-    
-    
-    # Decision variables
-    x = m.addVars(G.edges, vtype=GRB.BINARY)                                # x_ij: 1 if route from i to j is used, 0 otherwise
+     # Add the MTZ variable
     u = m.addVars(G.nodes)
+    c = m.addConstrs(u[i] - u[j] + len(G.nodes) * x[i, j] <=
+                     len(G.nodes) - 1 for i, j in G.edges if j != depot)
     
-    # Objective: Minimize the total travel cost
-    m.setObjective(gp.quicksum(G.edges[i, j]['length'] * x[i, j] for i, j in G.edges), GRB.MINIMIZE)
-   
-    # Enter each demand point once
-    m.addConstrs( gp.quicksum( x[i,j] for i in G.predecessors(j) ) == 1 for j in dem_points )
 
-    # Leave each demand point once
-    m.addConstrs( gp.quicksum( x[i,j] for j in G.successors(i) ) == 1 for i in dem_points )
-
-    # Leave the depot k times
-    m.addConstr( gp.quicksum( x[depot,j] for j in G.successors(depot) ) == max_vehicles )
-    u[depot].LB = 0
-    u[depot].UB = 0
-
-    for i in dem_points:
-        u[i].LB = q[i]
-        u[i].UB = Q
-
-    m.addConstrs( u[i] - u[j] + Q * x[i,j] <= Q - q[j] for i,j in G.edges if j != depot )
-
-    
-    
 
     
     
@@ -208,7 +83,6 @@ def solve_MTZ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_window
     display_optimal_solution(x)
 
     return m
-
 
 def display_optimal_solution(x):
     print("Optimal Routes:")
