@@ -210,6 +210,53 @@ def solve_MTZ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_window
     return m
 
 
+def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
+    
+    customers = [*range(1, num_data_points + 1)]  
+    locations = [depot] + customers   
+    connections = [(i, j) for i in locations for j in locations if i != j]
+    
+    # Model
+    m = gp.Model("MTZ_CVRP")
+    x = m.addVars(G.edges,vtype=GRB.BINARY)
+
+    m.setObjective( gp.quicksum( G.edges[e]['length'] * x[e] for e in G.edges ), GRB.MINIMIZE )
+
+        # Each city should touch the tour twice (enter-and-leave)
+    m.addConstrs( gp.quicksum( x[e] for e in G.edges if e in G.edges(i) ) == 2 for i in G.nodes )
+    
+    
+    m.optimize()
+
+    tour_edges = [ e for e in G.edges if x[e].x > 0.5 ]
+
+    
+
+        # for each component of the solution, add a subtour elimination inequality 
+    for component in nx.connected_components(G.edge_subgraph(tour_edges)):
+        if len(component) < G.number_of_nodes():
+            print("Adding constraint for this component:",component)
+            inner_edges = [ (i,j) for (i,j) in G.edges if i in component and j in component ]
+            m.addConstr( gp.quicksum( x[e] for e in inner_edges ) <= len(component) - 1 )
+    
+    
+   
+    
+    
+    time_limit = 300  # for example, 60 seconds
+    m.setParam(GRB.Param.TimeLimit, time_limit)
+    m.setParam('LogFile', 'gurobi.log') 
+    m.optimize()
+    
+    output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/{dataset_name_with_extension}.sol"
+
+    m.write(output_file_path)
+
+
+    display_optimal_solution(x)
+
+    return m
+
 def display_optimal_solution(x):
     print("Optimal Routes:")
     for (i, j), var in x.items():

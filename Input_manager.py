@@ -1,7 +1,7 @@
 import networkx as nx
 import os
 import pandas as pd
-from model import  eucl_dist,solve_VRP_TW_problem,get_optimization_results,solve_MTZ_CVRP_problem
+from model import  eucl_dist,solve_VRP_TW_problem,get_optimization_results,solve_DFJ_CVRP_problem
 from output_manager import visualize_graph
 
 
@@ -112,14 +112,14 @@ def main():
         
         print(q)
         
-        model = solve_MTZ_CVRP_problem(G, depot,max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points, dataset_name_with_extension)
+        model = solve_DFJ_CVRP_problem(G, depot,max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points, dataset_name_with_extension)
         
         
         # Assuming model is the returned Gurobi model from solve_TSP_MTZ_problem
         x_vars = model.getVars()
         x = {e: x_var for e, x_var in zip(G.edges, x_vars)}
         results = get_optimization_results(model)
-        file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS MTZ-CVRP/{dataset_name_with_extension}.png"
+        file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/{dataset_name_with_extension}.png"
 
         #output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/{dataset_name_with_extension}.png"
         # If graph visualization is needed
