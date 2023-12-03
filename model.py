@@ -225,7 +225,8 @@ def find_subtours(solution_edges):
 
 def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension,my_pos):
     start_time = time.time()  # Start time of the function
-    time_limit=60000
+    time_limit=300
+    current_time1 = time.time()
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
     connections = [(i, j) for i in locations for j in locations if i != j]
@@ -271,7 +272,7 @@ def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_window
     
     solution_edges = [ e for e in G.edges if x[e].x > 0.5 ]
    
-    file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{m.ObjVal}.png"
+    file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{dataset_name_with_extension}{m.ObjVal}.png"
     results = get_optimization_results(m)
     x_vars = m.getVars()
     x = {e: x_var for e, x_var in zip(G.edges, x_vars)}
@@ -280,13 +281,13 @@ def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_window
     # Subtour elimination process
     while True:
         current_time = time.time()
-        if current_time - start_time > time_limit:
+        if current_time - current_time1 > time_limit:
             print("Time limit exceeded.")
             break
         
         m.optimize()
         
-        file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{m.ObjVal}.png"
+        file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{dataset_name_with_extension}{m.ObjVal}.png"
         results = get_optimization_results(m)
         x_vars = m.getVars()
         x = {e: x_var for e, x_var in zip(G.edges, x_vars)}
@@ -341,13 +342,13 @@ def get_optimization_results(model):
         results['Optimal Value'] = model.ObjVal
         results['Number of Iterations'] = model.IterCount
         results['Runtime (seconds)'] = model.Runtime
-        results['MIP Gap'] = model.MIPGap if model.IsMIP else 'N/A'  # Set MIP Gap
-        results['Status'] = 'Optimal'
+      #  results['MIP Gap'] = model.MIPGap if model.IsMIP else 'N/A'  # Set MIP Gap
+      #  results['Status'] = 'Optimal'
     elif model.status == GRB.TIME_LIMIT:
         results['Optimal Value'] = model.ObjVal
         results['Number of Iterations'] = model.IterCount
-        results['Runtime (seconds)'] = model.Runtime
-        results['MIP Gap'] = model.MIPGap if model.IsMIP else 'N/A'  # Set MIP Gap
+     #   results['Runtime (seconds)'] = model.Runtime
+      #  results['MIP Gap'] = model.MIPGap if model.IsMIP else 'N/A'  # Set MIP Gap
 
         results['Status'] = 'Passed the time limit.'
         # You can still extract and return the best found solution here, if needed
