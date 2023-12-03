@@ -25,7 +25,7 @@ def main():
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R111.csv',
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R112.csv',
                 # 
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R201.csv',
+                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R201.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R202.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R203.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R204.csv',
@@ -38,7 +38,7 @@ def main():
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R211.csv',
 
                      
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C101.csv',
+                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C101.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C102.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C103.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C104.csv',
@@ -48,7 +48,7 @@ def main():
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C108.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C1/C109.csv',
                      
-                      '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C201.csv',
+                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C201.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C202.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C203.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C204.csv',
@@ -57,7 +57,7 @@ def main():
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C207.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/C2/C208.csv',
                      
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC101.csv'
+                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC101.csv'
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC102.csv',
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC103.csv',
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/RC1/RC104.csv',
@@ -97,7 +97,7 @@ def main():
         # Create position dictionary
         my_pos = {index: (row['XCOORD.'], row['YCOORD.']) for index, row in data_subset.iterrows()}
 
-        G = nx.complete_graph(num_data_points + 1, nx.DiGraph())
+        G = nx.complete_graph(num_data_points + 1,nx.DiGraph())
 
         for i, j in G.edges:
             (x1, y1) = my_pos[i]
@@ -112,7 +112,7 @@ def main():
         
         print(q)
         
-        model = solve_DFJ_CVRP_problem(G, depot,max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points, dataset_name_with_extension)
+        model = solve_DFJ_CVRP_problem(G, depot,max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points, dataset_name_with_extension,my_pos)
         
         
         # Assuming model is the returned Gurobi model from solve_TSP_MTZ_problem

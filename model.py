@@ -6,6 +6,10 @@ import networkx as nx
 import gurobipy as gp
 from gurobipy import GRB
 import math
+import time
+import matplotlib.pyplot as plt
+from output_manager import visualize_graph
+
 
 # Function to create and initialize the graph
 
@@ -153,7 +157,7 @@ def solve_VRP_TW_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,
 
 #MTZ FOR CVRP
 def solve_MTZ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
-    
+
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
     connections = [(i, j) for i in locations for j in locations if i != j]
@@ -210,50 +214,109 @@ def solve_MTZ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_window
     return m
 
 
-def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
-    
+
+def find_subtours(solution_edges):
+    """Function to find subtours in the given set of edges"""
+    G = nx.DiGraph()
+    G.add_edges_from(solution_edges)
+    return list(nx.simple_cycles(G))
+
+
+
+def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension,my_pos):
+    start_time = time.time()  # Start time of the function
+    time_limit=60000
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
     connections = [(i, j) for i in locations for j in locations if i != j]
-    
-    # Model
-    m = gp.Model("MTZ_CVRP")
+    # First, solve a relaxation
+
+    m = gp.Model()
     x = m.addVars(G.edges,vtype=GRB.BINARY)
-
-    m.setObjective( gp.quicksum( G.edges[e]['length'] * x[e] for e in G.edges ), GRB.MINIMIZE )
-
-        # Each city should touch the tour twice (enter-and-leave)
-    m.addConstrs( gp.quicksum( x[e] for e in G.edges if e in G.edges(i) ) == 2 for i in G.nodes )
     
+    m.setObjective( gp.quicksum( G.edges[i,j]['length'] * x[i,j] for i,j in G.edges ), GRB.MINIMIZE )
     
-    m.optimize()
-
-    tour_edges = [ e for e in G.edges if x[e].x > 0.5 ]
-
+    """ # Enter each demand point once
+    m.addConstrs( gp.quicksum( x[i,j] for i in G.predecessors(j) ) == 1 for j in dem_points )
     
+    # Leave each demand point once
+    m.addConstrs( gp.quicksum( x[i,j] for j in G.successors(i) ) == 1 for i in dem_points )
+    """
+    # Leave the depot k times
+    #m.addConstr( gp.quicksum( x[depot,j] for j in G.successors(depot) ) == max_vehicles )
+    #m.optimize() 
+# all customers have exactly one incoming and one outgoing connection
+    m.addConstrs((x.sum("*", j) == 1 for j in customers ), name="incoming")
+    m.addConstrs((x.sum(i, "*") == 1 for i in customers ), name="outgoing")
+    # vehicle limits
+    m.addConstr(x.sum(0, "*") <= max_vehicles, name="maxNumVehicles")
+    m.addConstr(x.sum(0, "*") >= numVehiclesNeededForCustomers(G,Q,q),name="minNumVehicles",)
 
-        # for each component of the solution, add a subtour elimination inequality 
-    for component in nx.connected_components(G.edge_subgraph(tour_edges)):
-        if len(component) < G.number_of_nodes():
+    """ tour_edges = [ e for e in G.edges if x[e].x > 0.5 ]
+    
+    while not nx.is_connected( G.edge_subgraph(tour_edges) ):
+    
+        for component in nx.connected_components(G.edge_subgraph(tour_edges)):
             print("Adding constraint for this component:",component)
             inner_edges = [ (i,j) for (i,j) in G.edges if i in component and j in component ]
             m.addConstr( gp.quicksum( x[e] for e in inner_edges ) <= len(component) - 1 )
+
+        m.optimize() """
+
+    #c = m.addConstrs( u[i] - u[j] + Q * x[i,j] <= Q - q[j] for i,j in G.edges if j != depot )
     
+   
+    # Solve initial VRP model
+    m.optimize()
+    
+    solution_edges = [ e for e in G.edges if x[e].x > 0.5 ]
+   
+    file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{m.ObjVal}.png"
+    results = get_optimization_results(m)
+    x_vars = m.getVars()
+    x = {e: x_var for e, x_var in zip(G.edges, x_vars)}
+    visualize_graph(G,depot, nx, x, my_pos, results,dataset_name_with_extension,file_path)
+    
+    # Subtour elimination process
+    while True:
+        current_time = time.time()
+        if current_time - start_time > time_limit:
+            print("Time limit exceeded.")
+            break
+        
+        m.optimize()
+        
+        file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/R101/{m.ObjVal}.png"
+        results = get_optimization_results(m)
+        x_vars = m.getVars()
+        x = {e: x_var for e, x_var in zip(G.edges, x_vars)}
+        visualize_graph(G,depot, nx, x, my_pos, results,dataset_name_with_extension,file_path)
+
+        solution_edges = [(i, j) for i, j in G.edges if x[i, j].X > 0.5]
+        subtours = find_subtours(solution_edges)
+
+        if not any(len(subtour) < len(G.nodes) for subtour in subtours):
+            break  # No subtours found
+
+        for subtour in subtours:
+            if len(subtour) < len(G.nodes):
+                m.addConstr(gp.quicksum(x[i, j] for i, j in solution_edges if i in subtour and j in subtour) <= len(subtour) - 1)
+
+        
     
    
     
     
-    time_limit = 300  # for example, 60 seconds
-    m.setParam(GRB.Param.TimeLimit, time_limit)
-    m.setParam('LogFile', 'gurobi.log') 
-    m.optimize()
+    #time_limit = 300  # for example, 60 seconds
+    #m.setParam(GRB.Param.TimeLimit, time_limit)
+    #m.optimize()
+
+    #m.setParam('LogFile', 'gurobi.log') 
     
-    output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/{dataset_name_with_extension}.sol"
+    #output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/VRP PACKAGE/300 SECONDS RESULTS DFJ-CVRP/{dataset_name_with_extension}.sol"
 
-    m.write(output_file_path)
-
-
-    display_optimal_solution(x)
+    #m.write(output_file_path)
+    #display_optimal_solution(x)
 
     return m
 
