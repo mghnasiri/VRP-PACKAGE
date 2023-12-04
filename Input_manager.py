@@ -1,7 +1,9 @@
 import networkx as nx
 import os
 import pandas as pd
-from model import  eucl_dist,solve_VRP_TW_problem,get_optimization_results,solve_DFJ_CVRP_problem
+from model import  eucl_dist,solve_VRP_TW_problem,get_optimization_results
+from Callback_DFJ import  solve_DFJ_CVRP_problem
+
 from output_manager import visualize_graph
 
 
@@ -25,7 +27,7 @@ def main():
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R111.csv',
                     # '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R1/R112.csv',
                 # 
-                     '/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R201.csv',
+                     #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R201.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R202.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R203.csv',
                      #'/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/Datasets/Solomon/solomon_dataset/R2/R204.csv',

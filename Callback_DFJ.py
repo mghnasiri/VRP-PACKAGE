@@ -6,6 +6,10 @@ import networkx as nx
 import gurobipy as gp
 from gurobipy import GRB
 import math
+import time
+import matplotlib.pyplot as plt
+from output_manager import visualize_graph
+
 
 # Function to create and initialize the graph
 
@@ -30,58 +34,61 @@ def numVehiclesNeededForCustomers(G,Q,q):
 
 
 
-def solve_MTZ_VRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension):
-    
+def find_subtours(solution_edges,m):
+    """Function to find subtours in the given set of edges"""
+    G = nx.DiGraph()
+    G.add_edges_from(solution_edges)
+    return list(nx.simple_cycles(G))
+
+
+def solve_DFJ_CVRP_problem(G,depot, max_vehicles,q,num_data_points,Q,time_windows,service_times,dem_points,dataset_name_with_extension,my_pos):
+    start_time = time.time()  # Start time of the function
+    time_limit=300
+    current_time1 = time.time()
     customers = [*range(1, num_data_points + 1)]  
     locations = [depot] + customers   
     connections = [(i, j) for i in locations for j in locations if i != j]
+    # First, solve a relaxation
 
+    m = gp.Model()
+    x = m.addVars(G.edges,vtype=GRB.BINARY)
     
-    # Model
-    m = gp.Model("DFJ_CVRP")
-    
-    # Decision variables
-    x = m.addVars(G.edges, vtype=GRB.BINARY)                                # x_ij: 1 if route from i to j is used, 0 otherwise
-    u = m.addVars(G.nodes, vtype=GRB.CONTINUOUS)
-    T = m.addVars(G.nodes, vtype=GRB.CONTINUOUS, lb=0, name="T")
-    
-    
-    # Objective: Minimize the total travel cost
-    m.setObjective(gp.quicksum(G.edges[i, j]['length'] * x[i, j] for i, j in G.edges), GRB.MINIMIZE)
-    
+    m.setObjective( gp.quicksum( G.edges[i,j]['length'] * x[i,j] for i,j in G.edges ), GRB.MINIMIZE )
     # all customers have exactly one incoming and one outgoing connection
     m.addConstrs((x.sum("*", j) == 1 for j in customers ), name="incoming")
     m.addConstrs((x.sum(i, "*") == 1 for i in customers ), name="outgoing")
-    
     # vehicle limits
     m.addConstr(x.sum(0, "*") <= max_vehicles, name="maxNumVehicles")
     m.addConstr(x.sum(0, "*") >= numVehiclesNeededForCustomers(G,Q,q),name="minNumVehicles",)
     
-     # Add the MTZ variable
-    u = m.addVars(G.nodes)
-    c = m.addConstrs(u[i] - u[j] + len(G.nodes) * x[i, j] <=
-                     len(G.nodes) - 1 for i, j in G.edges if j != depot)
-    
+    m.update()
 
+        # create a function to separate the subtour elimination constraints
+    def subtour_elimination(m, where):
+          # Check if the callback is at the right stage
+         if where == gp.GRB.Callback.MIPSOL:           
+            # Get the current solution
+            x_vals = m.cbGetSolution(m._x)
+            tour_edges = [(i, j) for i, j in m._G.edges if x_vals[i, j] > 0.5]
+            # Find subtours in the current solution
+            subtours = find_subtours(tour_edges,m)
+            # Add a subtour elimination constraint for each subtour found
+            for subtour in subtours:
+                 if len(subtour) <= m._G.number_of_nodes() / 2:
+                     m.cbLazy(gp.quicksum(m._x[i, j] for i, j in tour_edges if i in subtour and j in subtour) <= len(subtour) - 1)
 
     
+    # tell Gurobi that we will be adding (lazy) constraints
+    m.Params.lazyConstraints = 1    
+    # designate the callback routine to be subtour_elimination()
+    m._callback = subtour_elimination   
+    m._x = x
+    m._G = G
     
-    
-   
-    
-    
-    time_limit = 300  # for example, 60 seconds
-    m.setParam(GRB.Param.TimeLimit, time_limit)
-    m.setParam('LogFile', 'gurobi.log') 
-    m.optimize()
-    
-    output_file_path = f"/home/centor.ulaval.ca/ghafomoh/Downloads/ADM-7900/{dataset_name_with_extension}.sol"
-
-    m.write(output_file_path)
-
-
-    display_optimal_solution(x)
-
+ 
+    m.optimize(m._callback)
+ 
+  
     return m
 
 def display_optimal_solution(x):
